@@ -16,7 +16,7 @@ async function inicializa(){
     let arrayCity = await fazRequisicao(url);
 
     for(let i = 0; i < numeroWorkers; i++){
-        workers[i] = new Worker('index.js');
+        workers[i] = new Worker('worker.js');
     }
 
     for(let i = 0; i < numeroWorkers; i++){
