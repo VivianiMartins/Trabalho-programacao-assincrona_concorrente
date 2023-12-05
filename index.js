@@ -14,13 +14,19 @@ if (window.Worker) {
         select: true,
         buttons: [
             {
-                text: 'Anterior',
+                text: '0',
                 action: function () {
-                    preencherTabelaPesquisa($(country).val().toString(), -1)
+                    preencherTabelaPesquisa($(country).val().toString(), 0)
                 }
             },
             {
-                text: 'Proximo',
+                text: '1',
+                action: function () {
+                    preencherTabelaPesquisa($(country).val().toString(), 1)
+                }
+            },
+            {
+                text: '2',
                 action: function () {
                     preencherTabelaPesquisa($(country).val().toString(), 1)
                 }
@@ -37,7 +43,7 @@ if (window.Worker) {
         datatablePesquisa.DataTable().rows().remove();
 
         alteraPagina(page, city);
-        let url = 'https://wft-geo-db.p.rapidapi.com/v1/geo/cities?languageCode=pt-BR&sort=name';
+        let url = 'https://wft-geo-db.p.rapidapi.com/v1/geo/cities?languageCode=pt_BR&limit=10&sort=name';
         console.log(url);
 
         let cities =  fazRequisicao(url);

@@ -1,7 +1,7 @@
-var getCountry = function() {
+function getCountry() {
     document.onclick = function(e) {
-        var country = e.target.getElementById("#country")
+        var country = e.target.getElementById('country');
     }
 }
 
-preencherTabelaPesquisa();
+
