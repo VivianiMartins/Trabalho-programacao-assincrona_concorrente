@@ -6,8 +6,8 @@ const cabecalhoRequisicao = {
     }
 };
 const url = 'https://wft-geo-db.p.rapidapi.com/v1/geo/cities?languageCode=pt_BR&limit=10&sort=name';
-let numeroWorkers = 4;
-let workers = [];
+const numeroWorkers = 4;
+var workers = [];
 
 
 const opa = new SharedArrayBuffer(1024); //adcionei buffer
@@ -16,6 +16,7 @@ const bufferCompartilhado = new Int32Array(opa);
 inicializaBuffer();
 
 async function inicializaBuffer(){ //Aqui você faz a separação dos trabalhos entre os workers
+
 
     var arrayCity = await fazRequisicao(url);
     console.log("Teste Luiz");
@@ -34,10 +35,10 @@ async function inicializaBuffer(){ //Aqui você faz a separação dos trabalhos 
     }
     let centroides = [];
     let grupos = [];
-    let houveModificacao = true;
-    
 
-    for(i = 0; i < numeroWorkers; i++){
+    let houveModificacao = true;
+
+    for(let i = 0; i < numeroWorkers; i++){
         workers[i] = new Worker('worker.js');
         centroides[i] = [geraNumeroAleatorio(-90,90), geraNumeroAleatorio(-180,+180)]; //supondo que a latidude e longitude vieram em graus
         //eu to meio que contando que nao vai ter nenhum centroide igual
@@ -47,19 +48,27 @@ async function inicializaBuffer(){ //Aqui você faz a separação dos trabalhos 
     execucoesDoLoop = 0;
     while(houveModificacao){
         houveModificacao = false;
-        for(i = 0; i < arrayCity.length; i+=1){
+        for(let i = 0; i < arrayCity.length; i+=1){
             let latitude = arrayCity[i][2]; //arrayCity[i][2] tem que ter a latitude
             let longitude = arrayCity[i][3]; //arrayCity[i][3] tem que ter o longitude
             let populacao = arrayCity[i][4]; //arrayCity[i][4] tem que ter a populacao
             menorD = 40072;
             workerAtribuido = -1;
+            console.log('distribuindo grupos');
+            console.log(menorD);
+            console.log(workerAtribuido);
 
+            for(let j = 0; j < numeroWorkers; j++){
+                console.log(j);
+                let d = 2*6371*Math.asin(Math.sqrt( Math.sin((centroides[j][0]-latitude)/2)*Math.sin((centroides[j][0]-latitude)/2) + Math.cos(latitude)*Math.cos(centroides[j][0])*Math.sin((centroides[j][1]-longitude)/2)*Math.sin((centroides[j][1]-longitude)/2) ))/Math.log(populacao);
+                console.log(d);
 
-            for(i = 0; i < numeroWorkers; i++){
-                let d = 2*6371*Math.asin(Math.sqrt( Math.sin((centroides[i][0]-latitude)/2)*Math.sin((centroides[i][0]-latitude)/2) + Math.cos(latitude)*Math.cos(centroides[i][0])*Math.sin((centroides[i][1]-longitude)/2)*Math.sin((centroides[i][1]-longitude)/2) ))/Math.log(populacao);
-                if (d<=menorD){
-                    menorD = d
-                    workerAtribuido = i;
+                if (d <= menorD){
+                    menorD = d;
+                    console.log(d);
+                    console.log(menorD);
+                    workerAtribuido = j;
+                    console.log(workerAtribuido);
                 }
             
             }
@@ -76,7 +85,7 @@ async function inicializaBuffer(){ //Aqui você faz a separação dos trabalhos 
             mediaLatitude = mediaLatitude/(arrayCity.length);
             mediaLongitude = mediaLongitude/(arrayCity.length);
 
-            if([mediaLatitude, mediaLongitude]!=centroides[i]){
+            if([mediaLatitude, mediaLongitude] != centroides[i]){
                 houveModificacao = true;
                 centroides[i] = [mediaLatitude, mediaLongitude];
             }
@@ -89,15 +98,12 @@ async function inicializaBuffer(){ //Aqui você faz a separação dos trabalhos 
         }
 
         if(houveModificacao){
-            for(i = 0, i < numeroWorkers, i++){
+            for(let i = 0; i < numeroWorkers; i++){
                 grupos[i] = [];//esvaziando array
             }
         }
 
     }
-
-
-
 
     for(i = 0; i < numeroWorkers; i++){
         workers[i].postMessage([grupos[i], bufferCompartilhado]);
@@ -109,46 +115,30 @@ function geraNumeroAleatorio(min, max) {
 }
 
 async function fazRequisicao(url){
-    let arrayCity = [];
+    var arrayCity = [];
     let arrayPage = [];
     var arrayCities = await realizaRequisicao(url, cabecalhoRequisicao);
-    console.log(arrayCities.links[0]);
-    console.log(arrayCities.data[0]);
 
-    for (let j = 1; j < 3; j++) {
+    //links de paginação
+    for (let j = 0; j < 3; j++) {
         arrayPage[j] = arrayCities.links[j];
-        console.log(arrayPage[j]);
-
     }
-    let i = 0;
-
     //pegado as 10 primeiras cidades
     for (let i = 0; i < 10; i++) {
         arrayCity[i] = arrayCities.data[i];
-        //console.log(arrayCity[i]);
     }
 
     //tentando pegar pagina por pagina p construir o array de respostas
-    //pegndo da próxima página tenho que fazer isso de forma mais eficiente
-    setTimeout(async () => {
-        console.log("Esperou 5s");
-        var temp = arrayPage[1].href;
-        var urlTemp = 'https://wft-geo-db.p.rapidapi.com' + temp;
-        console.log(urlTemp);
-        var tempArray = await realizaRequisicao(urlTemp, cabecalhoRequisicao);
-        console.log(tempArray.data[0]);
-        let j=0;
-        for (let i = 10; i < 20; i++) {
-            arrayCity[i] = tempArray.data[j];
-            //console.log(arrayCity[i]);
-            j++;
-        }
-    }, 5000);
+    coletarDados(arrayPage[1], arrayCity, 10, 10, 5000);
+    console.log("foi um");
+    console.log(arrayCity.length);
 
-    for (let i = 0; i < 20; i++) {
-        console.log(arrayCity[i]);
-    }
-    return arrayCity;
+
+    coletarDados(arrayPage[1], arrayCity, 20, 10, 10000);
+
+    console.log("foi um");
+    console.log(arrayCity.length);
+    return  arrayCity;
 }
 
 
@@ -159,6 +149,24 @@ async function realizaRequisicao(url, cabecalhoRequisicao) {
     } catch (error) {
         console.error(error);
     }
+}
+
+function coletarDados(arrayPage, arrayCity, min, max, time){
+    setTimeout(async () => {
+        console.log("Esperou 5s");
+        let urlTemp = `https://wft-geo-db.p.rapidapi.com/v1/geo/cities?offset=${min}&limit=${max}&languageCode=pt_BR&sort=name`;
+        var tempArray = await realizaRequisicao(urlTemp, cabecalhoRequisicao);
+
+        let j = arrayCity.length;
+        console.log(j);
+        for (let i = 0; i < 10; i++) {
+            console.log("Testes Vivi mais dados");
+            arrayCity.push(tempArray.data[i]);
+            j++;
+        }
+        console.log("Oi saindo do for");
+        return arrayCity;
+    }, time);
 }
 
 
