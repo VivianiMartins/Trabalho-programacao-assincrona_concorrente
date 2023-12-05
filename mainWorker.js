@@ -14,17 +14,9 @@ inicializaBuffer();
 async function inicializaBuffer(){ //Aqui você faz a separação dos trabalhos entre os workers
 
     var arrayCity = await fazRequisicao(url);// Esse arrayCity já tem que vir com o nome da cidade e estado (Veja mais abaixo)
-    //arrayCity[0] = arrayCity[0]['city']['country']['latitude']['longitude']['population'];
-    console.log("Teste Luiz");
-    console.log(arrayCity[0]['city']);
-    console.log(arrayCity[0]['country']);
-    console.log(arrayCity[0]['latitude']);
-    console.log(arrayCity[0]['longitude']);
-    console.log(arrayCity[0]['population']);
     var centroides = [];
     var grupos = [];
     let houveModificacao = true;
-    
 
     for(let i = 0; i < numeroWorkers; i++){
         workers[i] = new Worker('worker.js');
@@ -73,7 +65,7 @@ async function inicializaBuffer(){ //Aqui você faz a separação dos trabalhos 
             mediaLatitude = mediaLatitude/(arrayCity.length);
             mediaLongitude = mediaLongitude/(arrayCity.length);
 
-            if([mediaLatitude, mediaLongitude]!=centroides[i]){
+            if([mediaLatitude, mediaLongitude] != centroides[i]){
                 houveModificacao = true;
                 centroides[i] = [mediaLatitude, mediaLongitude];
             }
@@ -93,9 +85,6 @@ async function inicializaBuffer(){ //Aqui você faz a separação dos trabalhos 
 
     }
 
-
-
-
     for(i = 0; i < numeroWorkers; i++){
         workers[i].postMessage(grupos[i]);
     }
@@ -106,46 +95,30 @@ function geraNumeroAleatorio(min, max) {
 }
 
 async function fazRequisicao(url){
-    let arrayCity = [];
+    var arrayCity = [];
     let arrayPage = [];
     var arrayCities = await realizaRequisicao(url, cabecalhoRequisicao);
-    console.log(arrayCities.links[0]);
-    console.log(arrayCities.data[0]);
 
-    for (let j = 1; j < 3; j++) {
+    //links de paginação
+    for (let j = 0; j < 3; j++) {
         arrayPage[j] = arrayCities.links[j];
-        console.log(arrayPage[j]);
-
     }
-    let i = 0;
-
     //pegado as 10 primeiras cidades
     for (let i = 0; i < 10; i++) {
         arrayCity[i] = arrayCities.data[i];
-        //console.log(arrayCity[i]);
     }
 
-   // //tentando pegar pagina por pagina p construir o array de respostas
-   // //pegndo da próxima página tenho que fazer isso de forma mais eficiente
-   // setTimeout(async () => {
-   //     console.log("Esperou 5s");
-   //     var temp = arrayPage[1].href;
-   //     var urlTemp = 'https://wft-geo-db.p.rapidapi.com' + temp;
-   //     console.log(urlTemp);
-   //     var tempArray = await realizaRequisicao(urlTemp, cabecalhoRequisicao);
-   //     console.log(tempArray.data[0]);
-   //     let j=0;
-   //     for (let i = 10; i < 20; i++) {
-   //         arrayCity[i] = tempArray.data[j];
-   //         //console.log(arrayCity[i]);
-   //         j++;
-   //     }
-   // }, 5000);
-   //
-   // for (let i = 0; i < 20; i++) {
-   //     console.log(arrayCity[i]);
-   // }
-    return arrayCity;
+    //tentando pegar pagina por pagina p construir o array de respostas
+    coletarDados(arrayPage[1], arrayCity, 10, 10, 5000);
+    console.log("foi um");
+    console.log(arrayCity.length);
+
+
+    coletarDados(arrayPage[1], arrayCity, 20, 10, 10000);
+
+    console.log("foi um");
+    console.log(arrayCity.length);
+    return  arrayCity;
 }
 
 
@@ -156,6 +129,24 @@ async function realizaRequisicao(url, cabecalhoRequisicao) {
     } catch (error) {
         console.error(error);
     }
+}
+
+function coletarDados(arrayPage, arrayCity, min, max, time){
+    setTimeout(async () => {
+        console.log("Esperou 5s");
+        let urlTemp = `https://wft-geo-db.p.rapidapi.com/v1/geo/cities?offset=${min}&limit=${max}&languageCode=pt_BR&sort=name`;
+        var tempArray = await realizaRequisicao(urlTemp, cabecalhoRequisicao);
+
+        let j = arrayCity.length;
+        console.log(j);
+        for (let i = 0; i < 10; i++) {
+            console.log("Testes Vivi mais dados");
+            arrayCity.push(tempArray.data[i]);
+            j++;
+        }
+        console.log("Oi saindo do for");
+        return arrayCity;
+    }, time);
 }
 
 
