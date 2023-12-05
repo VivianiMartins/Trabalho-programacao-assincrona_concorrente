@@ -20,7 +20,7 @@ async function inicializaBuffer(){ //Aqui você faz a separação dos trabalhos 
     let houveModificacao = true;
     
 
-    for(i = 0; i < numeroWorkers; i++){
+    for(let i = 0; i < numeroWorkers; i++){
         workers[i] = new Worker('worker.js');
         centroides[i] = [geraNumeroAleatorio(-90,90), geraNumeroAleatorio(-180,+180)]; //supondo que a latidude e longitude vieram em graus
         //eu to meio que contando que nao vai ter nenhum centroide igual
@@ -38,7 +38,7 @@ async function inicializaBuffer(){ //Aqui você faz a separação dos trabalhos 
             workerAtribuido = -1;
 
 
-            for(i = 0; i < numeroWorkers; i++){
+            for(let i = 0; i < numeroWorkers; i++){
                 let d = 2*6371*Math.asin(Math.sqrt( Math.sin((centroides[i][0]-latitude)/2)*Math.sin((centroides[i][0]-latitude)/2) + Math.cos(latitude)*Math.cos(centroides[i][0])*Math.sin((centroides[i][1]-longitude)/2)*Math.sin((centroides[i][1]-longitude)/2) ))/Math.log(populacao);
                 if (d<=menorD){
                     menorD = d
@@ -72,7 +72,7 @@ async function inicializaBuffer(){ //Aqui você faz a separação dos trabalhos 
         }
 
         if(houveModificacao){
-            for(i = 0, i < numeroWorkers, i++){
+            for(let i = 0; i < numeroWorkers; i++){
                 grupos[i] = [];//esvaziando array
             }
         }
