@@ -10,14 +10,11 @@ const numeroWorkers = 4;
 var workers = [];
 
 
-const opa = new SharedArrayBuffer(1024); //adcionei buffer
-const bufferCompartilhado = new Int32Array(opa);
+//const bufferCompartilhado = new SharedArrayBuffer(1024); //adcionei buffer
 
 inicializaBuffer();
 
 async function inicializaBuffer(){ //Aqui você faz a separação dos trabalhos entre os workers
-
-
     var arrayCity = await fazRequisicao(url);
     console.log("Teste Luiz");
     for(let i = 0; i < arrayCity.length; i++){
@@ -31,7 +28,7 @@ async function inicializaBuffer(){ //Aqui você faz a separação dos trabalhos 
             arrayCity[i][4] = 1.0001;
         };
         console.log(arrayCity[i]);
-        bufferCompartilhado[i] = 0;
+
     }
     let centroides = [];
     let grupos = [];
@@ -40,6 +37,16 @@ async function inicializaBuffer(){ //Aqui você faz a separação dos trabalhos 
 
     for(let i = 0; i < numeroWorkers; i++){
         workers[i] = new Worker('worker.js');
+
+        if (crossOriginIsolated) {
+            const bufferCompartilhado = new SharedArrayBuffer(1024);
+            workers[i].postMessage(bufferCompartilhado);
+        } else {
+            const bufferCompartilhado = new ArrayBuffer(16);
+            workers[i].postMessage(bufferCompartilhado);
+        }
+
+
         centroides[i] = [geraNumeroAleatorio(-90,90), geraNumeroAleatorio(-180,+180)]; //supondo que a latidude e longitude vieram em graus
         //eu to meio que contando que nao vai ter nenhum centroide igual
         grupos[i] = []; //só para inicializar
