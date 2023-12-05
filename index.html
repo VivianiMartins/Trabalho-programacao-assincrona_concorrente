@@ -20,18 +20,15 @@
     <script type="text/javascript" src="https://cdn.datatables.net/autofill/2.5.1/js/dataTables.autoFill.min.js"> </script>
 
     <!-- My scripts -->
-    <script src="index.js"></script>
+    <script type="text/javascript" src="index.js" ></script>
 </head>
-<header>
-    Cross-Origin-Opener-Policy: same-origin
-    Cross-Origin-Embedder-Policy: require-corp
-</header>
+
 <body class="bg-light">
     <div class="container-fluid">
         <div class="container p-5">
             <div class="row d-flex justify-content-center align-items-center  mb-5">
                 <div class="col">
-                    <h1 class="display-3 text-center">Cities / distance / population</h1>
+                    <h1 class="display-4 text-center">Cidades</h1>
                 </div>
             </div>
             <div class="row d-flex justify-content-center align-items-center  mb-5">
@@ -42,7 +39,7 @@
             </div>
             <div class="row d-flex justify-content-center align-items-center">
                 <div class="col-6 d-flex justify-content-center align-items-center">
-                    <button type="submit" class="btn btn-outline-dark btn-lg" onclick="getCountry()">Pesquisar</button>
+                    <button type="submit" class="btn btn-outline-dark btn-lg" onclick="getStarted()">Pesquisar</button>
                 </div>
             </div>
         </div>
@@ -52,9 +49,8 @@
                 <table id="table_search_result" class="table table-striped table-hover">
                     <thead class="thead-dark">
                     <tr>
-                        <th class="text-center" scope="col">Cidade</th>
+                        <th class="text-center" scope="col">Cidade Ids</th>
                         <th class="text-center" scope="col">População</th>
-                        <th class="text-center" scope="col">Distância</th>
                     </tr>
                     </thead>
                     <tbody id="result">
