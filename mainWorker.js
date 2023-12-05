@@ -6,17 +6,23 @@ const cabecalhoRequisicao = {
     }
 };
 const url = 'https://wft-geo-db.p.rapidapi.com/v1/geo/cities?languageCode=pt_BR&limit=10&sort=name';
-let numeroWorkers = 4;
-let workers = [];
+const numeroWorkers = 4;
+var workers = [];
 
 inicializaBuffer();
 
 async function inicializaBuffer(){ //Aqui você faz a separação dos trabalhos entre os workers
 
-    let arrayCity = await fazRequisicao(url);// Esse arrayCity já tem que vir com o nome da cidade e estado (Veja mais abaixo)
-    arrayCity = arrayCity['name']['country']['latidude']['longitude']['population'];
-    let centroides = [];
-    let grupos = [];
+    var arrayCity = await fazRequisicao(url);// Esse arrayCity já tem que vir com o nome da cidade e estado (Veja mais abaixo)
+    //arrayCity[0] = arrayCity[0]['city']['country']['latitude']['longitude']['population'];
+    console.log("Teste Luiz");
+    console.log(arrayCity[0]['city']);
+    console.log(arrayCity[0]['country']);
+    console.log(arrayCity[0]['latitude']);
+    console.log(arrayCity[0]['longitude']);
+    console.log(arrayCity[0]['population']);
+    var centroides = [];
+    var grupos = [];
     let houveModificacao = true;
     
 
@@ -30,19 +36,27 @@ async function inicializaBuffer(){ //Aqui você faz a separação dos trabalhos 
     execucoesDoLoop = 0;
     while(houveModificacao){
         houveModificacao = false;
-        for(i = 0; i < arrayCity.length; i+=1){
+        for(let i = 0; i < arrayCity.length; i+=1){
             let latitude = arrayCity[i][2]; //arrayCity[i][2] tem que ter a latitude
             let longitude = arrayCity[i][3]; //arrayCity[i][3] tem que ter o longitude
             let populacao = arrayCity[i][4]; //arrayCity[i][4] tem que ter a populacao
             menorD = 40072;
             workerAtribuido = -1;
+            console.log('distribuindo grupos');
+            console.log(menorD);
+            console.log(workerAtribuido);
 
+            for(let j = 0; j < numeroWorkers; j++){
+                console.log(j);
+                let d = 2*6371*Math.asin(Math.sqrt( Math.sin((centroides[j][0]-latitude)/2)*Math.sin((centroides[j][0]-latitude)/2) + Math.cos(latitude)*Math.cos(centroides[j][0])*Math.sin((centroides[j][1]-longitude)/2)*Math.sin((centroides[j][1]-longitude)/2) ))/Math.log(populacao);
+                console.log(d);
 
-            for(let i = 0; i < numeroWorkers; i++){
-                let d = 2*6371*Math.asin(Math.sqrt( Math.sin((centroides[i][0]-latitude)/2)*Math.sin((centroides[i][0]-latitude)/2) + Math.cos(latitude)*Math.cos(centroides[i][0])*Math.sin((centroides[i][1]-longitude)/2)*Math.sin((centroides[i][1]-longitude)/2) ))/Math.log(populacao);
-                if (d<=menorD){
-                    menorD = d
-                    workerAtribuido = i;
+                if (d <= menorD){
+                    menorD = d;
+                    console.log(d);
+                    console.log(menorD);
+                    workerAtribuido = j;
+                    console.log(workerAtribuido);
                 }
             
             }
@@ -111,26 +125,26 @@ async function fazRequisicao(url){
         //console.log(arrayCity[i]);
     }
 
-    //tentando pegar pagina por pagina p construir o array de respostas
-    //pegndo da próxima página tenho que fazer isso de forma mais eficiente
-    setTimeout(async () => {
-        console.log("Esperou 5s");
-        var temp = arrayPage[1].href;
-        var urlTemp = 'https://wft-geo-db.p.rapidapi.com' + temp;
-        console.log(urlTemp);
-        var tempArray = await realizaRequisicao(urlTemp, cabecalhoRequisicao);
-        console.log(tempArray.data[0]);
-        let j=0;
-        for (let i = 10; i < 20; i++) {
-            arrayCity[i] = tempArray.data[j];
-            //console.log(arrayCity[i]);
-            j++;
-        }
-    }, 5000);
-
-    for (let i = 0; i < 20; i++) {
-        console.log(arrayCity[i]);
-    }
+   // //tentando pegar pagina por pagina p construir o array de respostas
+   // //pegndo da próxima página tenho que fazer isso de forma mais eficiente
+   // setTimeout(async () => {
+   //     console.log("Esperou 5s");
+   //     var temp = arrayPage[1].href;
+   //     var urlTemp = 'https://wft-geo-db.p.rapidapi.com' + temp;
+   //     console.log(urlTemp);
+   //     var tempArray = await realizaRequisicao(urlTemp, cabecalhoRequisicao);
+   //     console.log(tempArray.data[0]);
+   //     let j=0;
+   //     for (let i = 10; i < 20; i++) {
+   //         arrayCity[i] = tempArray.data[j];
+   //         //console.log(arrayCity[i]);
+   //         j++;
+   //     }
+   // }, 5000);
+   //
+   // for (let i = 0; i < 20; i++) {
+   //     console.log(arrayCity[i]);
+   // }
     return arrayCity;
 }
 
