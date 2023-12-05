@@ -9,12 +9,29 @@ const url = 'https://wft-geo-db.p.rapidapi.com/v1/geo/cities?languageCode=pt_BR&
 let numeroWorkers = 4;
 let workers = [];
 
+
+const opa = new SharedArrayBuffer(1024); //adcionei buffer
+const bufferCompartilhado = new Int32Array(opa);
+
 inicializaBuffer();
 
 async function inicializaBuffer(){ //Aqui você faz a separação dos trabalhos entre os workers
 
-    let arrayCity = await fazRequisicao(url);// Esse arrayCity já tem que vir com o nome da cidade e estado (Veja mais abaixo)
-    arrayCity = arrayCity['name']['country']['latidude']['longitude']['population'];
+    var arrayCity = await fazRequisicao(url);
+    console.log("Teste Luiz");
+    for(let i = 0; i < arrayCity.length; i++){
+        arrayCity[i][0] = arrayCity[i]['city'];
+        arrayCity[i][1] = arrayCity[i]['country'];
+        arrayCity[i][2] = arrayCity[i]['latitude'];
+        arrayCity[i][3] = arrayCity[i]['longitude'];
+        if(arrayCity[i]['population']>1){
+            arrayCity[i][4] = arrayCity[i]['population'];
+        } else {
+            arrayCity[i][4] = 1.0001;
+        };
+        console.log(arrayCity[i]);
+        bufferCompartilhado[i] = 0;
+    }
     let centroides = [];
     let grupos = [];
     let houveModificacao = true;
@@ -83,7 +100,7 @@ async function inicializaBuffer(){ //Aqui você faz a separação dos trabalhos 
 
 
     for(i = 0; i < numeroWorkers; i++){
-        workers[i].postMessage(grupos[i]);
+        workers[i].postMessage([grupos[i], bufferCompartilhado]);
     }
 }
 
