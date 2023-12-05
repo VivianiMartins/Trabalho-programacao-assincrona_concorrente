@@ -9,19 +9,86 @@ const url = 'https://wft-geo-db.p.rapidapi.com/v1/geo/cities?languageCode=pt_BR&
 let numeroWorkers = 4;
 let workers = [];
 
-inicializa();
+inicializaBuffer();
 
-async function inicializa(){
+async function inicializaBuffer(){ //Aqui você faz a separação dos trabalhos entre os workers
 
-    let arrayCity = await fazRequisicao(url);
+    let arrayCity = await fazRequisicao(url);// Esse arrayCity já tem que vir com o nome da cidade e estado (Veja mais abaixo)
+    arrayCity = arrayCity['name']['country']['latidude']['longitude']['population'];
+    let centroides = [];
+    let grupos = [];
+    let houveModificacao = true;
+    
 
-    for(let i = 0; i < numeroWorkers; i++){
+    for(i = 0; i < numeroWorkers; i++){
         workers[i] = new Worker('worker.js');
+        centroides[i] = [geraNumeroAleatorio(-90,90), geraNumeroAleatorio(-180,+180)]; //supondo que a latidude e longitude vieram em graus
+        //eu to meio que contando que nao vai ter nenhum centroide igual
+        grupos[i] = []; //só para inicializar
     }
 
-    for(let i = 0; i < numeroWorkers; i++){
-        workers[i].postMessage(arrayCity);
+    execucoesDoLoop = 0;
+    while(houveModificacao){
+        houveModificacao = false;
+        for(i = 0; i < arrayCity.length; i+=1){
+            let latitude = arrayCity[i][2]; //arrayCity[i][2] tem que ter a latitude
+            let longitude = arrayCity[i][3]; //arrayCity[i][3] tem que ter o longitude
+            let populacao = arrayCity[i][4]; //arrayCity[i][4] tem que ter a populacao
+            menorD = 40072;
+            workerAtribuido = -1;
+
+
+            for(i = 0; i < numeroWorkers; i++){
+                let d = 2*6371*Math.asin(Math.sqrt( Math.sin((centroides[i][0]-latitude)/2)*Math.sin((centroides[i][0]-latitude)/2) + Math.cos(latitude)*Math.cos(centroides[i][0])*Math.sin((centroides[i][1]-longitude)/2)*Math.sin((centroides[i][1]-longitude)/2) ))/Math.log(populacao);
+                if (d<=menorD){
+                    menorD = d
+                    workerAtribuido = i;
+                }
+            
+            }
+            grupos[workerAtribuido].push(arrayCity[i]);
+        }
+
+        for(i = 0; i < numeroWorkers; i++){
+            let mediaLatitude = 0;
+            let mediaLongitude = 0;
+            for(i = 0; i < arrayCity.length; i+=1){
+                mediaLatitude += arrayCity[i][2];
+                mediaLongitude += arrayCity[i][3];
+            }
+            mediaLatitude = mediaLatitude/(arrayCity.length);
+            mediaLongitude = mediaLongitude/(arrayCity.length);
+
+            if([mediaLatitude, mediaLongitude]!=centroides[i]){
+                houveModificacao = true;
+                centroides[i] = [mediaLatitude, mediaLongitude];
+            }
+        }
+
+        execucoesDoLoop++;
+        if(execucoesDoLoop>(k*200)){// impedir loop infinito
+            houveModificacao = false;
+            console.log('Loop infinito!!');
+        }
+
+        if(houveModificacao){
+            for(i = 0, i < numeroWorkers, i++){
+                grupos[i] = [];//esvaziando array
+            }
+        }
+
     }
+
+
+
+
+    for(i = 0; i < numeroWorkers; i++){
+        workers[i].postMessage(grupos[i]);
+    }
+}
+
+function geraNumeroAleatorio(min, max) {
+    return Math.floor(Math.random() * (max - min) + min);
 }
 
 async function fazRequisicao(url){
