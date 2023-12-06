@@ -8,7 +8,7 @@ const cabecalhoRequisicao = {
 const url = 'https://wft-geo-db.p.rapidapi.com/v1/geo/cities?languageCode=pt_BR&limit=10&sort=name';
 const numeroWorkers = 4;
 var workers = [];
-const bufferCompartilhado = new SharedArrayBuffer(1024);
+//const bufferCompartilhado = new SharedArrayBuffer(1024);
 let sendCountry = '';
 //enviando país
 self.onmessage = (array) => {
@@ -41,15 +41,15 @@ async function inicializaBuffer(){ //Aqui você faz a separação dos trabalhos 
         workers[i] = new Worker('worker.js');
 
         //tentativa de usar buffer compartilhado, porém só entra no outro:
-         if (crossOriginIsolated) {
-             console.log('buffer 1024');
-             const bufferCompartilhado = new SharedArrayBuffer(1024);
-             workers[i].postMessage(bufferCompartilhado);
-         } else {
-             console.log('buffer 16');
-             const bufferCompartilhado = new ArrayBuffer(16);
-             workers[i].postMessage(bufferCompartilhado);
-         }
+        // if (crossOriginIsolated) {
+        //     console.log('buffer 1024');
+        //     const bufferCompartilhado = new SharedArrayBuffer(1024);
+        //     workers[i].postMessage(bufferCompartilhado);
+        // } else {
+        //     console.log('buffer 16');
+        //     const bufferCompartilhado = new ArrayBuffer(16);
+        //     workers[i].postMessage(bufferCompartilhado);
+        // }
 
 
         var centroide = [geraNumeroAleatorio(-90,90), geraNumeroAleatorio(-180,+180)]; //supondo que a latidude e longitude vieram em graus
@@ -136,7 +136,7 @@ async function inicializaBuffer(){ //Aqui você faz a separação dos trabalhos 
     }
     //aguarda a coleta dos dados para iniciar
     for(let i = 0; i < numeroWorkers; i++){
-        workers[i].postMessage([grupos[i], bufferCompartilhado, sendCountry]);
+        workers[i].postMessage([grupos[i], [], sendCountry]);
     }},299500);
     //13600 para 100
     //299500 para 2000
