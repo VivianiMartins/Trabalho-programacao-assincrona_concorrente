@@ -8,7 +8,7 @@ const cabecalhoRequisicao = {
 const url = 'https://wft-geo-db.p.rapidapi.com/v1/geo/cities?languageCode=pt_BR&limit=10&sort=name';
 const numeroWorkers = 4;
 var workers = [];
-//const bufferCompartilhado = new SharedArrayBuffer(1024);
+const bufferCompartilhado = new SharedArrayBuffer(1024);
 let sendCountry = '';
 //enviando país
 self.onmessage = (array) => {
@@ -38,19 +38,7 @@ async function inicializaBuffer(){ //Aqui você faz a separação dos trabalhos 
     let houveModificacao = true;
 
     for(let i = 0; i < numeroWorkers; i++){
-        workers[i] = new Worker('worker.js');
-
-        //tentativa de usar buffer compartilhado, porém só entra no outro:
-        // if (crossOriginIsolated) {
-        //     console.log('buffer 1024');
-        //     const bufferCompartilhado = new SharedArrayBuffer(1024);
-        //     workers[i].postMessage(bufferCompartilhado);
-        // } else {
-        //     console.log('buffer 16');
-        //     const bufferCompartilhado = new ArrayBuffer(16);
-        //     workers[i].postMessage(bufferCompartilhado);
-        // }
-
+        workers[i] = new Worker('../worker.js');
 
         var centroide = [geraNumeroAleatorio(-90,90), geraNumeroAleatorio(-180,+180)]; //supondo que a latidude e longitude vieram em graus
         while(centroide.includes(centroide)){
@@ -136,8 +124,9 @@ async function inicializaBuffer(){ //Aqui você faz a separação dos trabalhos 
     }
     //aguarda a coleta dos dados para iniciar
     for(let i = 0; i < numeroWorkers; i++){
-        workers[i].postMessage([grupos[i], [], sendCountry]);
-    }},299500);
+        //no lugar desse array seria o sheredBuffer
+        workers[i].postMessage([grupos[i], bufferCompartilhado, sendCountry]);
+    }},13600);
     //13600 para 100
     //299500 para 2000
 }
@@ -164,15 +153,11 @@ async function fazRequisicao(url){
     //Colocando o restante das cidades no array, tempo sendo aumentado para não haver problemas de requisição/
     //pelos testes não pudemos colocar intervalo menor de 1,5 segundos entre cada
     let tempo = 1500;
-    for(let j = 10; j < 2000; j = j + 10){
+    for(let j = 10; j < 100; j = j + 10){
         await coletarDados(arrayCity, j, 10, tempo);
         tempo = tempo + 1500;
     }
 
-    //visualizando arra
-   //setTimeout(async () => {
-   //    console.log(arrayCity);
-   //}, 15100);
     return  arrayCity;
 }
 

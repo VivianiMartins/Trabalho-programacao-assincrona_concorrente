@@ -1,6 +1,6 @@
+const country = document.querySelector('#country').value;
 const result = document.querySelector('#result');
 function getStarted(){
-    country = document.querySelector('#country').value;
 
     if(country){
         alert("Vamos começar!");
@@ -9,7 +9,7 @@ function getStarted(){
         let pesquisaAtual = '';
 
         if (window.Worker) {
-            const myWorker = new Worker("mainWorker.js");
+            const myWorker = new Worker("./mainWorker.js");
             myWorker.postMessage(country);
 
             datatablePesquisa.DataTable({
