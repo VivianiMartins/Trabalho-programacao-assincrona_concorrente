@@ -11,3 +11,5 @@ Para automatizar o processo de starter do servidor usando o Nodemon, assim não 
 para iniciarmos o servidor. No terminal use o comando para ambiente de desenvolvimento, apenas uma vez: yarn add nodemon -D
 
 Posteriormente use apenas o comando: yarn dev
+
+Acesso pelo: http://localhost:3080/
