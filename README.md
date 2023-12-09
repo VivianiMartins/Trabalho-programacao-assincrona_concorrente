@@ -3,12 +3,12 @@ Trabalho final da disciplina de Paradigmas de Programação desenvolvido juntame
 
 Api utilizada para coletar os dados: https://rapidapi.com/wirefreethought/api/geodb-cities
 
-Para rodar o Framework Express: yarn add express
+Como a instalação e uso de node.js e yarn é diferente para Windows e Linux, 
+se atente se os próximos passos são compatíveis ao seu sistema operacional:
+*arquivos como yarn.lock package-lock.json talvez terão que ser excluídos, caso esteja usando windows
+Todos os passos para rodar o servidor (excluindo sequelize): https://medium.com/@filipefilpe/api-com-nodejs-e-sequelize-ab6ce07195e0
 
-Para rodar o server, no terminal use o comando (apenas para produção): node src/server.js
-
-Para automatizar o processo de starter do servidor usando o Nodemon, assim não será necessário irmos sempre no terminal
-para iniciarmos o servidor. No terminal use o comando para ambiente de desenvolvimento, apenas uma vez: yarn add nodemon -D
+Para liberar o uso de cors: npm i cors express nodemon
 
 Posteriormente use apenas o comando: yarn dev
 

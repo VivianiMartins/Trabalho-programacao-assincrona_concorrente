@@ -1,11 +1,12 @@
 {
   "name": "Trabalho-programacao-assincrona_concorrente",
   "version": "1.0.0",
-  "main": "src/index.js",
+  "main": "src/models/index.js",
   "repository": "https://github.com/VivianiMartins/Trabalho-programacao-assincrona_concorrente.git",
   "author": "viviani <vivianimartinssantos@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.18.2"
   },
   "devDependencies": {
