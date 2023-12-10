@@ -24,34 +24,32 @@
      <script type="javascript" src="../dataTable/js/dataTables.autoFill.min.js"> </script>
 
     <!-- My scripts -->
-    <script type="javascript"  src="../models/index.js" ></script>
-
+    <script type="javascript" src="../models/index.js" ></script>
     <script>
-        async function getStarted(){
-            const country = document.getElementById('country');
-
-            if (country) {
-                alert("Vamos começar!");
-                if (window.Worker) {
-                    const myWorker = new Worker("./collectDataWorker.js");
-                    myWorker.postMessage(country);
-
-                } else {
-                    console.log('Seu browser não suporta web workers.');
-                }
-            } else {
-
-                alert("Favor inserir nome do país");
+        document.addEventListener('DOMContentLoaded', function(){
+            const button = document.getElementById('myButton');
+            if(button){
+                button.addEventListener('click', function (){
+                    const country = document.getElementById('country');
+                    const countryValue = country.value;
+                    if (countryValue) {
+                        alert("Vamos começar!");
+                        if (window.Worker) {
+                            const myWorker = new Worker("./collectDataWorker.mjs", { type: 'module' });
+                            myWorker.postMessage(countryValue);
+                        } else {
+                            console.log('Seu browser não suporta web workers.');
+                        }
+                    } else {
+                        alert("Favor inserir nome do país");
+                    }
+                });
+            }else{
+                console.log('Botão não encontrado');
             }
-        }
-
-        const button = document.getElementById('myButton');
-        button.addEventListener('submit', getStarted());
-
+        });
     </script>
-
 </head>
-
 <body class="bg-light">
     <div class="container-fluid">
         <div class="container p-5">

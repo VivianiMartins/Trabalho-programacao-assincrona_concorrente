@@ -1,4 +1,4 @@
-import { Worker } from 'node:worker_threads';
+import { Worker } from 'worker_threads';
 
 const cabecalhoRequisicao = {
     method: 'GET',
@@ -31,14 +31,13 @@ const cabecalhoRequisicao3 = {
 
 const url = 'https://wft-geo-db.p.rapidapi.com/v1/geo/cities?languageCode=pt_BR&limit=10&sort=name';
 const numeroWorkers = 4;
-var workers = [];
+const workers = [];
 const bufferCompartilhadoData = new SharedArrayBuffer(1024);
 
-
-module.exports = function inicializaBuffer1(script) { //Aqui você faz a separação dos trabalhos entre os workers
+export default function inicializaBuffer1(script) {
     return new Promise((resolve, reject) => {
         for (let i = 0; i < numeroWorkers; i++) {
-            workers[i] = new Worker('../dataWorker.js', { type: 'module' });
+            workers[i] = new Worker('../dataWorker.mjs', { type: 'module' });
             workers[i].postMessage(bufferCompartilhadoData);
 
             workers[i].on('message', resolve);
@@ -49,5 +48,4 @@ module.exports = function inicializaBuffer1(script) { //Aqui você faz a separa�
             });
         }
     });
-
 }

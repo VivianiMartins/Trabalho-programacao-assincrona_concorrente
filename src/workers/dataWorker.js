@@ -1,27 +1,5 @@
+'use strict'
 
-
-const url = 'https://wft-geo-db.p.rapidapi.com/v1/geo/cities?languageCode=pt_BR&limit=10&sort=name';
-const numeroWorkers = 4;
-var workers = [];
-const bufferCompartilhadoData = new SharedArrayBuffer(1024);
-const result = document.querySelector('#result');
-let sendCountry = '';
-//enviando país
-self.onmessage = (array) => {
-    sendCountry = array.data;
-};
-
-inicializaBuffer1();
-
-async function inicializaBuffer1() { //Aqui você faz a separação dos trabalhos entre os workers
-    var arrayCity = await fazRequisicao(url);
-
-    for(let i = 0; i < numeroWorkers; i++){
-        workers[i] = new Worker('../worker.js');
-
-    }
-
-}
 async function fazRequisicao(url){
     var arrayCity = [];
 

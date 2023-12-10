@@ -16,7 +16,5 @@ module.exports = {
         } catch (err) {
             return console.err("Erro na busca: ", err);
         }
-    },
-
-
+    }
 }
