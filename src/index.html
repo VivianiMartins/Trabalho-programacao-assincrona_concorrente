@@ -18,32 +18,20 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/select/1.5.0/css/select.dataTables.min.css" />
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.3.2/css/buttons.dataTables.min.css" />
 
-     <script type="javascript" src="../dataTable/js/datatables.min.js"></script>
-     <script type="javascript" src="../dataTable/js/dataTables.select.min.js"></script>
-     <script type="javascript" src="../dataTable/js/dataTables.buttons.min.js"></script>
-     <script type="javascript" src="../dataTable/js/dataTables.autoFill.min.js"> </script>
+     <script type="javascript" src="./dataTable/js/datatables.min.js"></script>
+     <script type="javascript" src="./dataTable/js/dataTables.select.min.js"></script>
+     <script type="javascript" src="./dataTable/js/dataTables.buttons.min.js"></script>
+     <script type="javascript" src="./dataTable/js/dataTables.autoFill.min.js"> </script>
 
     <!-- My scripts -->
-    <script type="javascript" src="../models/index.js" ></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function(){
+    <script type="module" src="./index.js" >
+
+        document.addEventListener('DOMContentLoaded', () => {
             const button = document.getElementById('myButton');
             if(button){
-                button.addEventListener('click', function (){
-                    const country = document.getElementById('country');
-                    const countryValue = country.value;
-                    if (countryValue) {
-                        alert("Vamos começar!");
-                        if (window.Worker) {
-                            const myWorker = new Worker("./collectDataWorker.mjs", { type: 'module' });
-                            myWorker.postMessage(countryValue);
-                        } else {
-                            console.log('Seu browser não suporta web workers.');
-                        }
-                    } else {
-                        alert("Favor inserir nome do país");
-                    }
-                });
+                const country = document.getElementById('country');
+                const countryValue = country.value;
+                button.addEventListener('click', getStarted(countryValue) );
             }else{
                 console.log('Botão não encontrado');
             }
