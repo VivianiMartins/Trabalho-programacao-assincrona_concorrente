@@ -11,17 +11,17 @@
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.1.3/css/bootstrap.min.css" />
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    <script type="javascript" src="./js/jquery.min.js"></script>
 
     <!-- data Tables-->
-    <link rel="stylesheet" type="text/css" href= "./dataTable/css/datatables_min.css" />
-    <link rel="stylesheet" type="text/css" href="./dataTable/css/select_dataTables_min.css" />
-    <link rel="stylesheet" type="text/css" href="./dataTable/css/buttons_dataTables_min.css" />
+    <link rel="stylesheet" type="text/css" href= "./dataTable/css/datatables.min.css" />
+    <link rel="stylesheet" type="text/css" href="./dataTable/css/select.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="./dataTable/css/buttons.dataTables.min.css" />
 
-     <script type="javascript" src="./dataTable/js/datatables.min.js"></script>
-     <script type="javascript" src="./dataTable/js/dataTables.select.min.js"></script>
-     <script type="javascript" src="./dataTable/js/dataTables.buttons.min.js"></script>
-     <script type="javascript" src="./dataTable/js/dataTables.autoFill.min.js"> </script>
+    <script type="text/javascript" src="./dataTable/js/datatables.min.js"></script>
+    <script type="text/javascript" src="./dataTable/js/dataTables.select.min.js"></script>
+    <script type="text/javascript" src="./dataTable/js/dataTables.buttons.min.js"></script>
+    <script type="text/javascript" src="./dataTable/js/dataTables.autoFill.min.js"> </script>
 
     <!-- My scripts -->
     <script type="module" src="./index.js" ></script>
@@ -29,7 +29,6 @@
         document.addEventListener('DOMContentLoaded', () => {
             const button = document.getElementById('myButton');
             if(button){
-
                 button.addEventListener('click', window.getStarted );
             }else{
                 console.log('Botão não encontrado');

@@ -1,41 +1,43 @@
+import './js/jquery.min.js'; // Importe o jQuery, se não estiver globalmente disponível
+import './dataTable/js/datatables.min.js'; // Importe o DataTables, se não estiver globalmente disponível
+
 let country = '';
 let result = document.querySelector('#result');
+let datatablePesquisa = $('#table_search_result');
+
+let paginaAtual = 0;
+let pesquisaAtual = '';
 
 window.getStarted = function () {
-    const country2 = document.getElementById('country');
-    const countryValue = country2.value;
-    country = countryValue;
-    console.log(country);
-    if (countryValue) {
-        alert("Vamos começar!");
-        if (window.Worker) {
-            console.log('entrou');
-            let datatablePesquisa = $("#table_search_result");
-            let paginaAtual = 0;
-            let pesquisaAtual = '';
+    const country2 = document.querySelector('#country');
+    country = country2.value;
 
+    if (country) {
+        alert("Vamos começar!");
+
+        if (window.Worker) {
             const myWorker = new Worker("./workers/collectDataWorker.mjs", {type: 'module'});
             datatablePesquisa.DataTable({
                 paging: false,
                 dom: 'Bfrtip',
                 select: true,
-                buttons: [
+                buttons:  [
                     {
                         text: '0',
                         action: function () {
-                            preencherTabelaPesquisa($(result).val().toString(), 0)
+                            preencherTabelaPesquisa($(country).val().toString(), 0)
                         }
                     },
                     {
                         text: '1',
                         action: function () {
-                            preencherTabelaPesquisa($(result).val().toString(), 1)
+                            preencherTabelaPesquisa($(country).val().toString(), 1)
                         }
                     },
                     {
                         text: '2',
                         action: function () {
-                            preencherTabelaPesquisa($(result).val().toString(), 1)
+                            preencherTabelaPesquisa($(country).val().toString(), 1)
                         }
                     }
                 ]

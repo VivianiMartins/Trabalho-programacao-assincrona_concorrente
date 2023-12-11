@@ -17,6 +17,9 @@ routes.use('/src', express.static(path.join(__dirname, 'src')));
 // Servir arquivos estáticos da pasta 'workers'
 routes.use('/workers', express.static(path.join(__dirname, 'workers')));
 
+routes.use('/js', express.static(path.join(__dirname, 'js')));
+routes.use('/dataTable/js', express.static(path.join(__dirname, 'dataTable/js')));
+
 // Rotas individuais para cada arquivo no diretório 'workers'
 routes.get('/collectDataWorker.mjs', cors(corsOptions), (req, res) => {
     res.type('application/javascript');
@@ -38,11 +41,34 @@ routes.get('/worker.mjs', cors(corsOptions), (req, res) => {
     res.sendFile('worker.mjs', { root: path.join(__dirname, 'workers') });
 });
 
+//js
+routes.get('/jquery.min.js', (req, res) => {
+    res.type('application/javascript');
+    res.sendFile('jquery.min.js', { root: path.join(__dirname, 'js') });
+});
+
+//dataTable/js
+routes.get('/dataTable/js/datatables.min.js', (req, res) => {
+    res.type('application/javascript');
+    res.sendFile('datatables.min.js', { root: path.join(__dirname, 'dataTable/js') });
+});
+routes.get('/dataTable/js/dataTables.select.min.js', (req, res) => {
+    res.type('application/javascript');
+    res.sendFile('dataTables.select.min.js', { root: path.join(__dirname, 'dataTable/js') });
+});
+routes.get('/dataTable/js/dataTables.buttons.min.js', (req, res) => {
+    res.type('application/javascript');
+    res.sendFile('dataTables.buttons.min.js', { root: path.join(__dirname, 'dataTable/js') });
+});
+routes.get('/dataTable/js/dataTables.autoFill.min.js', (req, res) => {
+    res.type('application/javascript');
+    res.sendFile('dataTables.autoFill.min.js', { root: path.join(__dirname, 'dataTable/js') });
+});
+
 routes.get('/index.js', cors(corsOptions), (req, res) => {
     res.type('application/javascript');
     res.sendFile(path.join(__dirname, 'index.js'));
 });
-
 // Rota do HTML
 routes.get('/*', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));

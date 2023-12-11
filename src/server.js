@@ -18,6 +18,20 @@ app.use((req, res, next) => {
     }
     next();
 });
+app.use('/dataTable/js', express.static(path.join(__dirname, 'dataTable/js'), {
+    setHeaders: (res, path) => {
+        if (path.endsWith('.js')) {
+            res.setHeader('Content-Type', 'application/javascript');
+        }
+    },
+}));
+app.use('/js', express.static(path.join(__dirname, 'js'), {
+    setHeaders: (res, path) => {
+        if (path.endsWith('.js')) {
+            res.setHeader('Content-Type', 'application/javascript');
+        }
+    },
+}));
 
 app.use((req, res, next) => {
     if (path.extname(req.url) === '.css') {
