@@ -1,4 +1,4 @@
-import { Worker } from 'worker_threads';
+console.log('entrou no worker');
 
 const cabecalhoRequisicao = {
     method: 'GET',

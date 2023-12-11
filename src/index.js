@@ -1,11 +1,48 @@
+
 let country = '';
-const getStarted = (countryValue) => {
+let datatablePesquisa = document.querySelector("#table_search_result");
+let paginaAtual = 0;
+let pesquisaAtual = '';
+let result = document.querySelector('#result');
+
+window.getStarted = function () {
+    const country2 = document.getElementById('country');
+    const countryValue = country2.value;
     country = countryValue;
+    console.log(country);
     if (countryValue) {
         alert("Vamos começar!");
         if (window.Worker) {
+            console.log('entrou');
             const myWorker = new Worker("./workers/collectDataWorker.mjs", {type: 'module'});
             myWorker.postMessage(countryValue);
+
+            datatablePesquisa.DataTable({
+                paging: false,
+                dom: 'Bfrtip',
+                select: true,
+                buttons: [
+                    {
+                        text: '0',
+                        action: function () {
+                            preencherTabelaPesquisa($(result).val().toString(), 0)
+                        }
+                    },
+                    {
+                        text: '1',
+                        action: function () {
+                            preencherTabelaPesquisa($(result).val().toString(), 1)
+                        }
+                    },
+                    {
+                        text: '2',
+                        action: function () {
+                            preencherTabelaPesquisa($(result).val().toString(), 1)
+                        }
+                    }
+                ]
+            });
+
         } else {
             console.log('Seu browser não suporta web workers.');
         }
@@ -14,39 +51,6 @@ const getStarted = (countryValue) => {
     }
 }
 
-let datatablePesquisa = $("#table_search_result");
-let paginaAtual = 0;
-let pesquisaAtual = '';
-
-const myWorker = new Worker("./workers/mainWorker.mjs");
-
-myWorker.postMessage(country.value);
-
-datatablePesquisa.DataTable({
-    paging: false,
-    dom: 'Bfrtip',
-    select: true,
-    buttons: [
-        {
-            text: '0',
-            action: function () {
-                preencherTabelaPesquisa($(result).val().toString(), 0);
-            }
-        },
-        {
-            text: '1',
-            action: function () {
-                preencherTabelaPesquisa($(result).val().toString(), 1);
-            }
-        },
-        {
-            text: '2',
-            action: function () {
-                preencherTabelaPesquisa($(result).val().toString(), 1);
-            }
-        }
-    ]
-});
 function alteraPagina(pagina, pesquisa) {
     pesquisaAtual === pesquisa ? paginaAtual += pagina : paginaAtual = 1;
     pesquisaAtual = pesquisa;
