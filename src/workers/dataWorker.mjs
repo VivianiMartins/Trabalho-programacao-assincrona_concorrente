@@ -11,25 +11,35 @@ onmessage = async function (array) {
 async function fazRequisicao(url, bufferCompartilhado){
     //Colocando o restante das cidades no array, tempo sendo aumentado para não haver problemas de requisição
     //pelos testes não pudemos colocar intervalo menor de 1,5 segundos entre cada
-    let tempo = 2500;
 
-    for(let j = 0; j < 40; j = j + 10){
-        var tempArray = await coletarDados( bufferCompartilhado, j, 10, tempo);
+    //primeira requisição de cada:
+    let tempo = 1500;
+    await sleep(tempo);
+    console.log(tempo);
+
+    var tempArray = await realizaRequisicao(url, cabecalhoRequisicao);
+    for (let i = 0; i < 10; i++) {
+        // Armazene os dados no objeto bufferCompartilhado
+        Atomics.store(bufferCompartilhado, i, tempArray.data[i]);
+    }
+
+    for(let j = 10; j < 500; j = j + 10){
+        //ainda tenho que incrementar o tempo, para fazer mais requisições em cada worker
+        tempo = tempo + 1500;
+        tempArray = await coletarDados( bufferCompartilhado, j, 10, tempo);
         console.log(tempArray);
         for (let i = 0; i < 10; i++) {
             // Armazene os dados no objeto bufferCompartilhado
             Atomics.store(bufferCompartilhado, i, tempArray.data[i]);
         }
-        //ainda tenho que incrementar o tempo, para fazer mais requisições em cada worker
-        tempo = tempo + 1500;
     }
     // Retorne o objeto bufferCompartilhado
     postMessage({ status: 'concluido', buffer: bufferCompartilhado });
 }
 
-async function realizaRequisicao(urlTemp, cabecalhoRequisicao) {
+async function realizaRequisicao(url, cabecalhoRequisicao) {
     try {
-        let response = await fetch(urlTemp, cabecalhoRequisicao);
+        let response = await fetch(url, cabecalhoRequisicao);
         return response.json();
     } catch (error) {
         console.error(error);
@@ -49,7 +59,7 @@ function coletarDados( bufferCompartilhado, min, max, tempo){
         await sleep(tempo);
         console.log(tempo);
         let urlTemp = `https://wft-geo-db.p.rapidapi.com/v1/geo/cities?offset=${min}&limit=${max}&languageCode=pt_BR&sort=name`;
-        let tempArray = await realizaRequisicao(urlTemp, cabecalhoRequisicao);
+        var tempArray = await realizaRequisicao(urlTemp, cabecalhoRequisicao);
         let j = bufferCompartilhado.length;
         console.log(j);
         for (let i = 0; i < 10; i++) {
