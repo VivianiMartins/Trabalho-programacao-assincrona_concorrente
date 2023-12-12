@@ -22,13 +22,11 @@ async function inicializaBuffer(){
     }
 
     for (let i = 0; i <numeroWorkers; i++){
-        setTimeout(async () => {
-            workers[i].onmessage = async function (array) {
-                //Separando o buffer e o cabeçalho
-                arrayCity = arrayCity.push(array.data.buffer);
-                console.log(arrayCity);
-            };
-        }, 20000);
+        workers[i].onmessage = async function (array) {
+            //Separando o buffer e o cabeçalho
+            arrayCity = arrayCity.push(array.data.buffer);
+            console.log(arrayCity);
+        };
     }
 }
 

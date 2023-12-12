@@ -11,17 +11,16 @@ onmessage = async function (array) {
 async function fazRequisicao(url, bufferCompartilhado){
     //Colocando o restante das cidades no array, tempo sendo aumentado para não haver problemas de requisição
     //pelos testes não pudemos colocar intervalo menor de 1,5 segundos entre cada
-
     //primeira requisição de cada:
-    let tempo = 1500;
-    await sleep(tempo);
-    console.log(tempo);
-
     var tempArray = await realizaRequisicao(url, cabecalhoRequisicao);
     for (let i = 0; i < 10; i++) {
         // Armazene os dados no objeto bufferCompartilhado
         Atomics.store(bufferCompartilhado, i, tempArray.data[i]);
     }
+
+    let tempo = 1500;
+    await sleep(tempo);
+    console.log(tempo);
 
     for(let j = 10; j < 500; j = j + 10){
         //ainda tenho que incrementar o tempo, para fazer mais requisições em cada worker
