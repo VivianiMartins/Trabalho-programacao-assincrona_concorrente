@@ -1,7 +1,6 @@
 const url = 'https://wft-geo-db.p.rapidapi.com/v1/geo/cities?languageCode=pt_BR&limit=10&sort=name';
 let chaveVariavel = '';
 let tempo = 0;
-var tempArray =[];
 
 onmessage = async function (array) {
     //Separando o buffer e o cabeçalho
@@ -25,7 +24,7 @@ async function fazRequisicao(url, bufferView){
     for(let j = 0; j < 20; j = j + 10){
         //ainda tenho que incrementar o tempo, para fazer mais requisições em cada worker
         tempo = tempo + 1500;
-        tempArray = await coletarDados( bufferView, j, 10, tempo, cabecalhoRequisicao);
+        let tempArray = await coletarDados( bufferView, j, 10, tempo, cabecalhoRequisicao);
         console.log('temp com retorno da coleta', tempArray)
         for (let i = 0; i < 10; i++) {
             // Armazene os dados no objeto bufferCompartilhado
@@ -43,7 +42,6 @@ async function realizaRequisicao(url, cabecalhoRequisicao) {
         return response.json();
     } catch (error) {
         console.error(error);
-        //retorno vazio
         return { data: [] };
     }
 }
