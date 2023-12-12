@@ -13,15 +13,14 @@ inicializaBuffer();
 
 async function inicializaBuffer(){
     //Aqui você faz a separação dos trabalhos entre os workers
-    for(let i = 0; i < numeroWorkers; i++){
-        let tempKey = eval('key'+i);
-        workers[i] = new Worker('./dataWorker.mjs', {type: 'module'});
-    }
+
 
     for(let i = 0; i < numeroWorkers; i++){
+        workers[i] = new Worker('./dataWorker.mjs', { type: 'module'});
         let tempKey = eval('key'+i);
         workers[i].postMessage({buffer: arrayCity, key: tempKey});
     }
+
 
     setTimeout(async () => {
         //Pegando os dados para colocar na view
