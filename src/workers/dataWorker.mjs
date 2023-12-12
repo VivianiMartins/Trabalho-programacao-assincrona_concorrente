@@ -11,7 +11,7 @@ onmessage = async function (array) {
 async function fazRequisicao(url, bufferCompartilhado){
     //Colocando o restante das cidades no array, tempo sendo aumentado para não haver problemas de requisição
     //pelos testes não pudemos colocar intervalo menor de 1,5 segundos entre cada
-    let tempo = 1500;
+    let tempo = 2500;
 
     for(let j = 0; j < 40; j = j + 10){
         var tempArray = await coletarDados( bufferCompartilhado, j, 10, tempo);
