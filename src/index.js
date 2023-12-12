@@ -16,10 +16,7 @@ window.getStarted = function () {
         alert("Vamos começar!");
 
         if (window.Worker) {
-            //const myWorker = new Worker("./workers/collectDataWorker.mjs", {type: 'module'});
-            const myWorker = new Worker("./workers/mainWorker.mjs", {type: 'module'}); //Worker do Luiz
-            myWorker.postMessage(country);
-
+            const myWorker = new Worker("./workers/collectDataWorker.mjs", {type: 'module'});
             datatablePesquisa.DataTable({
                 paging: false,
                 dom: 'Bfrtip',
