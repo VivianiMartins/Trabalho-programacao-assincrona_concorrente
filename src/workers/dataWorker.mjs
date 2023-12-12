@@ -1,42 +1,72 @@
-export async function fazRequisicao(url) {
-    const arrayCity = [];
-    const arrayCities = await realizaRequisicao(url, cabecalhoRequisicao);
+const url = 'https://wft-geo-db.p.rapidapi.com/v1/geo/cities?languageCode=pt_BR&limit=10&sort=name';
+let chaveVariavel = 'chaveTemporária';
 
+onmessage = function (array) {
+    //Separando o buffer e o cabeçalho
+    console.log('O que estou recebendo:', array);
+    let bufferCompartilhado = array.data.buffer;
+    chaveVariavel = array.data.key.apiKey;
+    
+    fazRequisicao(url, bufferCompartilhado);
+    
+};
+
+let cabecalhoRequisicao = {
+    method: 'GET',
+    headers: {
+        'X-RapidAPI-Key': chaveVariavel,
+        'X-RapidAPI-Host': 'wft-geo-db.p.rapidapi.com'
+    }
+};
+
+async function fazRequisicao(url, bufferCompartilhado){
+    const resultadoRequisicao = await realizaRequisicao(url, cabecalhoRequisicao);
+
+    //pegado as 10 primeiras cidades e colocando no array
     for (let i = 0; i < 10; i++) {
-        arrayCity[i] = arrayCities.data[i];
+        // Armazene os dados no objeto bufferCompartilhado
+        bufferCompartilhado.data = resultadoRequisicao.data[i];
     }
 
+    //Colocando o restante das cidades no array, tempo sendo aumentado para não haver problemas de requisição/
+    //pelos testes não pudemos colocar intervalo menor de 1,5 segundos entre cada
     let tempo = 1500;
-    for (let j = 10; j < 100; j += 10) {
-        await coletarDados(arrayCity, j, 10, tempo);
-        tempo += 1500;
+    for(let j = 10; j < 2000; j = j + 10){
+        await coletarDados(bufferCompartilhado, j, 10, tempo);
+        tempo = tempo + 1500;
     }
 
-    return arrayCity;
+    // Retorne o objeto bufferCompartilhado
+    postMessage(bufferCompartilhado);
 }
 
 async function realizaRequisicao(url, cabecalhoRequisicao) {
     try {
-        const response = await fetch(url, cabecalhoRequisicao);
+        let response = await fetch(url, cabecalhoRequisicao);
         return response.json();
     } catch (error) {
         console.error(error);
     }
+    return bufferCompartilhado;
 }
 
-async function coletarDados(arrayCity, min, max, time) {
-    console.log("Favor aguardar coleta dos dados");
-    await new Promise((resolve) => setTimeout(resolve, time));
+function coletarDados(bufferCompartilhado, min, max, time){
+    setTimeout(async () => {
+        let urlTemp = `https://wft-geo-db.p.rapidapi.com/v1/geo/cities?offset=${min}&limit=${max}&languageCode=pt_BR&sort=name`;
+        var tempArray = await realizaRequisicao(urlTemp, cabecalhoRequisicao);
 
-    console.log("Esperou %i", time);
-    const urlTemp = `https://wft-geo-db.p.rapidapi.com/v1/geo/cities?offset=${min}&limit=${max}&languageCode=pt_BR&sort=name`;
-    const tempArray = await realizaRequisicao(urlTemp, cabecalhoRequisicao);
-
-    let j = arrayCity.length;
-    for (let i = 0; i < 10; i++) {
-        arrayCity.push(tempArray.data[i]);
-        j++;
-    }
-
-    return arrayCity;
+        let j = bufferCompartilhado.length;
+        console.log(j);
+        for (let i = 0; i < 10; i++) {
+            bufferCompartilhado.data.push(
+                tempArray.data[i][0] = tempArray.data[i]['city'],
+                tempArray.data[i][1] = tempArray.data[i]['country'],
+                tempArray.data[i][2] = tempArray.data[i]['latitude'],
+                tempArray.data[i][3] = tempArray.data[i]['longitude'],
+                tempArray.data[i][4] = tempArray.data[i]['population']
+            );
+            j++;
+        }
+        return bufferCompartilhado;
+    }, time);
 }
