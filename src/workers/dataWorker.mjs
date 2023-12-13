@@ -27,29 +27,29 @@ async function fazRequisicao(url, bufferView){
     //pelos testes não pudemos colocar intervalo menor de 1,5 segundos entre cada
     tempo = 1500;
     LastIdTemp = LastId+50;
-    console.log('last id temp antes do for', LastIdTemp);
-    console.log('last id antes do for', LastId);
 
     for(let j = LastId; j < LastIdTemp; j = j + 10){
-        console.log('Contador j', j);
-        console.log('last id no for', LastId);
-        console.log('last id no for', LastIdTemp);
+        //console.log('Contador j', j);
+        //console.log('last id no for', LastId);
+        //console.log('last id no for', LastIdTemp);
+        console.log('tempo', tempo);
 
         //ainda tenho que incrementar o tempo, para fazer mais requisições em cada worker
         tempo = tempo + 1500;
         let tempArray = await coletarDados( bufferView, j, 10, tempo, cabecalhoRequisicao);
+        //console.log("tempArray após coleta: ", tempArray);
 
-        console.log('inicio', inicio);
         for (let i = 0; i < 10; i= i + 1) {
             // Armazene os dados no objeto bufferCompartilhado
             let jsonString = JSON.stringify(tempArray[i]);
+            //console.log("json String: ", jsonString);
             let encodedText = textEncoder.encode(jsonString);
             //console.log("enconded text: ", encodedText);
             let k = 0;
+            //console.log('tamanho do codificado', encodedText.length);
             for (k; k < encodedText.length; k= k + 1){
-                //console.log("enconded text[k]: ", encodedText[k]);
                 Atomics.store(bufferView, i*80+LastId+k, encodedText[k]);
-                //console.log('inicio:', inicio, 'parte', i*80+LastId+k);
+                //console.log('index', i*80+LastId+k);
             }
             while(k<80){
                 //console.log("enconded text[k]: 0");
@@ -58,12 +58,7 @@ async function fazRequisicao(url, bufferView){
                 k++;
             }
         }
-        if (j===2000){
-            console.log('chegou ao fim???');
-            break;
-        }
         LastId+=50;
-        console.log("Last id fora:", LastId);
     }
     // Retorne o objeto bufferCompartilhado
     postMessage( bufferView);

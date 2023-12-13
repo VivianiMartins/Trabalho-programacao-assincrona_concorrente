@@ -10,15 +10,15 @@ let bufferCompartilhado = new SharedArrayBuffer(1024**2);
 var arrayCity = new Uint8Array(bufferCompartilhado);
 let inicio = 0;//cada worker vai ter 500 dados para coletar dos 1000
 const textDecoder = new TextDecoder();
+let decodedTextCities = [];
 
 inicializaBuffer();
-
-async function inicializaBuffer(){
+async function inicializaBuffer() {
     //Aqui você faz a separação dos trabalhos entre os workers para coletar os dados
-    for(let i = 0; i < numeroWorkers; i++){
-        workers[i] = new Worker('./dataWorker.mjs', { type: 'module'});
-        let tempKey = eval('key'+i);
-        console.log(inicio);
+    for (let i = 0; i < numeroWorkers; i++) {
+        workers[i] = new Worker('./dataWorker.mjs', {type: 'module'});
+        let tempKey = eval('key' + i);
+        //console.log(inicio);
         workers[i].postMessage({buffer: arrayCity, key: tempKey, begin: inicio});
         inicio = inicio + 500;
     }
@@ -28,9 +28,37 @@ async function inicializaBuffer(){
         const temp = Array.from(arrayCity);
         //esses dados tem que ser decodificados para voltarem a ser strings
         console.log('Dados após o término dos workers:', temp);
-        console.log('Shared Array Buffer após o término dos workers: ', arrayCity);
+
+        decodedTextCities = await decodeAndParseArrayBuffer(arrayCity);
+        // Exibe os dados no console
+        //console.log('Dados decodificados', decodedTextCities);
+
+        //conferindo a quantidade de dados
+        const numeroDeColchetes = (decodedTextCities.match(/\[/g) || []).length;
+        console.log(numeroDeColchetes);
+
+        //enviando os dados para o index.js
+        postMessage(decodedTextCities);
     }, 75000);
+
 }
+
+// Função para decodificar e analisar o ArrayBuffer
+async function decodeAndParseArrayBuffer(arrayBuffer) {
+    // Converte o ArrayBuffer para Uint8Array
+    let uint8Array = new Uint8Array(arrayBuffer);
+    // Decodifica Uint8Array para string usando TextDecoder
+    let decodedText = textDecoder.decode(uint8Array);
+    //retirando campos indesejados
+    decodedText = decodedText.replace(/\]\[/g, ",");
+    decodedText = decodedText.replace(/\u0000/g, '');
+    decodedText = decodedText.replace(/\"/g, '');
+    decodedText = decodedText.replace(/\'/g, '');
+    decodedText = decodedText.replace(/\\/g,'');
+    // Analisa a string JSON de volta para um objeto
+    return  JSON.stringify(decodedText);
+}
+
 
 setTimeout(async () => {
     const myWorker2 = new Worker("./mainWorker.mjs", {type: 'module'});
