@@ -1,17 +1,10 @@
 self.onmessage = (array) => {
     //bufferCompartilhado, Math.floor((bufferCompartilhado.length*x)/numeroWorkers), Math.floor((bufferCompartilhado.length*(x+1))/numeroWorkers)
-    
+    let decodedText = textDecoder.decode(dataRefactor);
+        decodedText = decodedText.replace(/\]\[/g, ",");
+        let decodedTextJson = JSON.parse(decodedText);
     let bufferCompartilhado = array.data[0];
-    console.log('zero');
-    console.log(Atomics.load(bufferCompartilhado, 0));
-    console.log('um');
-    console.log(array.data[1]);
-    console.log('dois');
-    console.log(array.data[2]);
-    console.log('tres');
-    console.log(array.data[3]);
-    console.log('zero de novo');
-    console.log(array.data[0][1]);
+    console.log("Buffer Compartilhado do worker.mjs: ", Array.from(bufferCompartilhado));
     let inicio = array.data[1];
     let fim = array.data[2];
     let tamanho = array.data[3];
@@ -42,7 +35,8 @@ self.onmessage = (array) => {
 
         houveModificacao = false;
         for(let x = inicio; x < (fim); x+=1){
-            let load = Atomics.load(bufferCompartilhado, x)
+            let load = Atomics.load(bufferCompartilhado, x); //tengo que resolver isso
+            
             let latitude = load[2]; //arrayCity[i][2] tem que ter a latitude
             let longitude = load[3]; //arrayCity[i][3] tem que ter o longitude
             let populacao = load[4]; //arrayCity[i][4] tem que ter a populacao
