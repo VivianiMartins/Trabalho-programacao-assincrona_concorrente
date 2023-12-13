@@ -56,7 +56,7 @@ window.getStarted = function () {
                     }
                 ]
             });
-        }, 8000);
+        }, 77000);
     } else {
         alert('Seu browser não suporta web workers.');
     }

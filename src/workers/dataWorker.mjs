@@ -58,7 +58,7 @@ async function fazRequisicao(url, bufferView){
                 k++;
             }
         }
-        LastId+=10;
+        LastId+=50;
     }
     // Retorne o objeto bufferCompartilhado
     postMessage( bufferView);
