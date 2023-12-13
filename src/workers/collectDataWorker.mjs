@@ -5,10 +5,10 @@ const key3 = { apiKey: '395cf27038mshdb83f05a51cd4b3p107c7ajsnf9127a05a42f'};//l
 
 const numeroWorkers = 4;
 var workers = [];
-let bufferCompartilhado = new SharedArrayBuffer(1024);
+let bufferCompartilhado = new SharedArrayBuffer(1024**2);
 //irei salvar os dados do bufferCompartilhado em um array para poder mandar para o html
-var arrayCity = new Int32Array(bufferCompartilhado);
-
+var arrayCity = new Uint8Array(bufferCompartilhado);
+let requisicoesQCadaWorkerfaz = 24000; //Multiplicando pelo numero de caracteres
 inicializaBuffer();
 
 async function inicializaBuffer(){
@@ -18,7 +18,8 @@ async function inicializaBuffer(){
     for(let i = 0; i < numeroWorkers; i++){
         workers[i] = new Worker('./dataWorker.mjs', { type: 'module'});
         let tempKey = eval('key'+i);
-        workers[i].postMessage({buffer: arrayCity, key: tempKey});
+        let inicio = requisicoesQCadaWorkerfaz*i
+        workers[i].postMessage({buffer: arrayCity, key: tempKey, begin: inicio});
     }
 
 
@@ -26,7 +27,8 @@ async function inicializaBuffer(){
         //Pegando os dados para colocar na view
         const temp = Array.from(arrayCity);
         console.log('Dados após o término dos workers:', temp);
-    }, 5000);
+        console.log('Shared Array Buffer após o término dos workers: ', arrayCity);
+    }, 25000);
 }
 
 
