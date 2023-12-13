@@ -2,7 +2,7 @@ self.onmessage = (array) => {
     //bufferCompartilhado, Math.floor((bufferCompartilhado.length*x)/numeroWorkers), Math.floor((bufferCompartilhado.length*(x+1))/numeroWorkers)
     const textDecoder = new TextDecoder();
     let bufferCompartilhado = array.data[0];
-    console.log("Buffer Compartilhado do worker.mjs: ", Array.from(bufferCompartilhado));
+    //console.log("Buffer Compartilhado do worker.mjs: ", Array.from(bufferCompartilhado));
     let inicio = array.data[1];
     let fim = array.data[2];
     let tamanho = array.data[3];
@@ -12,6 +12,8 @@ self.onmessage = (array) => {
     let houveModificacao = true;
     let numeroWorkers = 4; //ISSO DAQUI É O K, SÓ Tô Com Preguiça de mudar
     let workerAtribuido = -1;
+
+    const textEncoder = new TextEncoder();
 
     for(let i = 0; i < numeroWorkers; i++){
         var centroide = [geraNumeroAleatorio(-90,90), geraNumeroAleatorio(-180,+180)]; //supondo que a latidude e longitude vieram em graus
@@ -33,23 +35,31 @@ self.onmessage = (array) => {
 
         houveModificacao = false;
         for(let x = inicio; x < (fim); x+=1){
-            let load = new Uint8Array(50);
+            let load = new Uint8Array(80);
             let y = 0
-            while (y<50){
-
-               Atomics.store(load, y, Atomics.load(bufferCompartilhado, x));
-                y++;
+            while(Atomics.load(bufferCompartilhado, x)!=textEncoder.encode('[')){
+                //Atomics.store(load, y, Atomics.load(bufferCompartilhado, x));
                 x++;
             }
+            while(Atomics.load(bufferCompartilhado, x)!=textEncoder.encode(']')){
+                Atomics.store(load, y, Atomics.load(bufferCompartilhado, x));
+                x++;
+                y++;
+            }
+            Atomics.store(load, y, Atomics.load(bufferCompartilhado, x));
             while(Atomics.load(load, load.length-1) == 0){ // While the last element is a 0,
                 load = load.slice(0, load.length-1);                 // Remove that last element
             }
-            x--;
-            console.log(load);
+            //console.log(load);
             let decodedText = textDecoder.decode(load);
             decodedText = decodedText.replace(/\]\[/g, ",");
-            let decodedTextJson = JSON.parse(decodedText);
-            console.log(decodedTextJson);
+            try{
+                let decodedTextJson = JSON.parse(decodedText);
+                load = decodedTextJson;
+                //console.log(decodedTextJson);
+            } catch(e){
+                //console.log("deu erro!! inicio eh ", inicio, " final eh ", fim, "e x eh", x);
+            }
             let latitude = load[2]; //arrayCity[i][2] tem que ter a latitude
             let longitude = load[3]; //arrayCity[i][3] tem que ter o longitude
             let populacao = load[4]; //arrayCity[i][4] tem que ter a populacao
@@ -75,7 +85,7 @@ self.onmessage = (array) => {
 
             }
             if(workerAtribuido!=-1){
-                grupos[workerAtribuido].push(Atomics.load(bufferCompartilhado, i));
+                grupos[workerAtribuido][grupos[workerAtribuido].length] = load;
             } else {
                 console.log("Item não atribuído a worker algum");
             }
@@ -108,7 +118,7 @@ self.onmessage = (array) => {
             }
         }
         execucoesDoLoop++;
-        if(execucoesDoLoop > (numeroWorkers*200)){// impedir loop infinito
+        if(execucoesDoLoop > (numeroWorkers*250)){// impedir loop infinito
             houveModificacao = false;
             console.log('Loop infinito!!');
         }
@@ -120,4 +130,19 @@ self.onmessage = (array) => {
 
 function geraNumeroAleatorio(min, max) {
     return Math.floor(Math.random() * (max - min) + min);
+}
+
+function decodeAndParseArrayBuffer(arrayBuffer) { // peguei da vivi
+    // Converte o ArrayBuffer para Uint8Array
+    let uint8Array = new Uint8Array(arrayBuffer);
+    // Decodifica Uint8Array para string usando TextDecoder
+    let decodedText = textDecoder.decode(uint8Array);
+    //retirando campos indesejados
+    decodedText = decodedText.replace(/\]\[/g, ",");
+    decodedText = decodedText.replace(/\u0000/g, '');
+    decodedText = decodedText.replace(/\"/g, '');
+    decodedText = decodedText.replace(/\'/g, '');
+    decodedText = decodedText.replace(/\\/g,'');
+    // Analisa a string JSON de volta para um objeto
+    return  JSON.stringify(decodedText);
 }
