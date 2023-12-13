@@ -67,11 +67,6 @@ window.getStarted = function () {
             datatablePesquisa.DataTable().row.add([cities["city"], cities["id"], cities["latitude"], cities["longitude"], cities["population"], 10]).draw();
         }
 
-        //separando as cidades em grupos
-        setTimeout(async () => {
-            const myWorker2 = new Worker("./workers/collectDataWorker.mjs", {type: 'module'});
-        }, 78000);
-
     } else {
         alert('Seu browser não suporta web workers.');
     }

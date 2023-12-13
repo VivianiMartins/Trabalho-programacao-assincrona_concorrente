@@ -32,4 +32,10 @@ async function inicializaBuffer(){
     }, 75000);
 }
 
+setTimeout(async () => {
+    const myWorker2 = new Worker("./mainWorker.mjs", {type: 'module'});
+    //console.log('Shared Array Buffer do luiz: ', Array.from(arrayCity));
+    myWorker2.postMessage(arrayCity);
+}, 78000);
+
 
