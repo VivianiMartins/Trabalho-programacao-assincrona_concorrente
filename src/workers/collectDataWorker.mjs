@@ -39,7 +39,7 @@ async function inicializaBuffer() {
 
         //enviando os dados para o index.js
         postMessage(decodedTextCities);
-    }, 75000);
+    }, 7500);
 
 }
 
@@ -53,17 +53,17 @@ async function decodeAndParseArrayBuffer(arrayBuffer) {
     decodedText = decodedText.replace(/\]\[/g, ",");
     decodedText = decodedText.replace(/\u0000/g, '');
     decodedText = decodedText.replace(/\"/g, '');
+    decodedText = decodedText.replace(/\'/g, '');
     decodedText = decodedText.replace(/\\/g,'');
     // Analisa a string JSON de volta para um objeto
-    const parsedData = JSON.stringify(decodedText);
-    return parsedData;
+    return  JSON.stringify(decodedText);
 }
 
 
-//setTimeout(async () => {
-//    const myWorker2 = new Worker("./mainWorker.mjs", {type: 'module'});
-//    //console.log('Shared Array Buffer do luiz: ', Array.from(arrayCity));
-//    myWorker2.postMessage(arrayCity);
-//}, 78000);
+setTimeout(async () => {
+    const myWorker2 = new Worker("./mainWorker.mjs", {type: 'module'});
+    //console.log('Shared Array Buffer do luiz: ', Array.from(arrayCity));
+    myWorker2.postMessage(arrayCity);
+}, 8500);
 
 

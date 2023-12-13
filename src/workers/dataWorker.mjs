@@ -29,9 +29,9 @@ async function fazRequisicao(url, bufferView){
     LastIdTemp = LastId+50;
 
     for(let j = LastId; j < LastIdTemp; j = j + 10){
-        console.log('Contador j', j);
-        console.log('last id no for', LastId);
-        console.log('last id no for', LastIdTemp);
+        //console.log('Contador j', j);
+        //console.log('last id no for', LastId);
+        //console.log('last id no for', LastIdTemp);
         console.log('tempo', tempo);
 
         //ainda tenho que incrementar o tempo, para fazer mais requisições em cada worker
@@ -58,7 +58,7 @@ async function fazRequisicao(url, bufferView){
                 k++;
             }
         }
-        LastId+=50;
+        LastId+=10;
     }
     // Retorne o objeto bufferCompartilhado
     postMessage( bufferView);
