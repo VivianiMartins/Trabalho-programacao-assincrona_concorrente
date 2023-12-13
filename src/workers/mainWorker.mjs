@@ -9,7 +9,7 @@ const url = 'https://wft-geo-db.p.rapidapi.com/v1/geo/cities?languageCode=pt_BR&
 let bufferCompartilhado = new SharedArrayBuffer(1024);
 const numeroWorkers = 4;
 var workers = [];
-let tamanho = 500;
+let tamanho = 250;
 //enviando país
 
 self.onmessage = async function (array) {
@@ -32,7 +32,7 @@ async function inicializaBuffer(){ //Aqui você faz a separação dos trabalhos 
 
 
         }
-        workers[numeroWorkers-1].postMessage([buffer, tamanho*(numeroWorkers-1), tamanho, tamanho]);
+        workers[numeroWorkers-1].postMessage([bufferCompartilhado, tamanho*(numeroWorkers-1), tamanho*(numeroWorkers), tamanho]);
     },500);
 }
 
