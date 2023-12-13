@@ -1,14 +1,26 @@
 self.onmessage = (array) => {
-    //bufferCompartilhado, sendCountry, Math.floor((bufferCompartilhado.length*x)/numeroWorkers), Math.floor((bufferCompartilhado.length*(x+1))/numeroWorkers)
-    let bufferCompartilhado = new BigUint64Array(array.data[0]);
-    let sendCountry = array.data[1];
-    let inicio = array.data[2];
-    let fim = array.data[3];
+    //bufferCompartilhado, Math.floor((bufferCompartilhado.length*x)/numeroWorkers), Math.floor((bufferCompartilhado.length*(x+1))/numeroWorkers)
+    
+    let bufferCompartilhado = array.data[0];
+    console.log('zero');
+    console.log(Atomics.load(bufferCompartilhado, 0));
+    console.log('um');
+    console.log(array.data[1]);
+    console.log('dois');
+    console.log(array.data[2]);
+    console.log('tres');
+    console.log(array.data[3]);
+    console.log('zero de novo');
+    console.log(array.data[0][1]);
+    let inicio = array.data[1];
+    let fim = array.data[2];
+    let tamanho = array.data[3];
     let centroides = [];
     let grupos = [];
     let tol = 1e-3;
     let houveModificacao = true;
     let numeroWorkers = 5; //ISSO DAQUI É O K, SÓ Tô Com Preguiça de mudar
+    let workerAtribuido = -1;
 
     for(let i = 0; i < numeroWorkers; i++){
         var centroide = [geraNumeroAleatorio(-90,90), geraNumeroAleatorio(-180,+180)]; //supondo que a latidude e longitude vieram em graus
@@ -29,12 +41,12 @@ self.onmessage = (array) => {
         }
 
         houveModificacao = false;
-        for(let i = inicio; i < fim; i+=1){
-            let load = Atomics.load(bufferCompartilhado, i)
+        for(let x = inicio; x < (fim); x+=1){
+            let load = Atomics.load(bufferCompartilhado, x)
             let latitude = load[2]; //arrayCity[i][2] tem que ter a latitude
             let longitude = load[3]; //arrayCity[i][3] tem que ter o longitude
             let populacao = load[4]; //arrayCity[i][4] tem que ter a populacao
-            menorD = 999999999;
+            let menorD = 999999999;
             workerAtribuido = -1;
 
             for(let j = 0; j < numeroWorkers; j++){
@@ -62,30 +74,30 @@ self.onmessage = (array) => {
             }
         }
 
-        for(let i = 0; i < numeroWorkers; i++){
+        for(let a = 0; a < numeroWorkers; a++){
             let mediaLatitude = 0;
             let mediaLongitude = 0;
 
-            for(let x = 0; x < grupos[i].length; x+=1){
-                mediaLatitude += grupos[i][x][2];
-                mediaLongitude += grupos[i][x][3];
+            for(let x = 0; x < grupos[a].length; x+=1){
+                mediaLatitude += grupos[a][x][2];
+                mediaLongitude += grupos[a][x][3];
             }
-            mediaLatitude = mediaLatitude/(grupos[i].length);
-            mediaLongitude = mediaLongitude/(grupos[i].length);
+            mediaLatitude = mediaLatitude/(grupos[a].length);
+            mediaLongitude = mediaLongitude/(grupos[a].length);
             let distancia = 2*6371000*Math.asin(
                 Math.sqrt(
                     Math.sin(
-                        (centroides[i][0]-mediaLatitude)/2)*Math.sin(
-                        (centroides[i][0]-mediaLatitude)/2) + Math.cos(
+                        (centroides[a][0]-mediaLatitude)/2)*Math.sin(
+                        (centroides[a][0]-mediaLatitude)/2) + Math.cos(
                         mediaLatitude)*Math.cos(
-                        centroides[i][0])*Math.sin(
-                        (centroides[i][1]-mediaLongitude)/2)*Math.sin(
-                        (centroides[i][1]-mediaLongitude)/2)
+                        centroides[a][0])*Math.sin(
+                        (centroides[a][1]-mediaLongitude)/2)*Math.sin(
+                        (centroides[a][1]-mediaLongitude)/2)
                 )
             );
             if(distancia >= tol){
                 houveModificacao = true;
-                centroides[i] = [mediaLatitude, mediaLongitude];
+                centroides[a] = [mediaLatitude, mediaLongitude];
             }
         }
         execucoesDoLoop++;

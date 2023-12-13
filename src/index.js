@@ -11,7 +11,7 @@ window.getStarted = function () {
     alert("Vamos começar!");
 
     if (window.Worker) {
-        const myWorker = new Worker("./workers/collectDataWorker.mjs", {type: 'module'});
+        const myWorker = new Worker("./workers/mainWorker.mjs", {type: 'module'});
 
         datatablePesquisa.DataTable({
             paging: false,

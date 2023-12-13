@@ -1,12 +1,17 @@
 const url = 'https://wft-geo-db.p.rapidapi.com/v1/geo/cities?languageCode=pt_BR&limit=10&sort=name';
 let chaveVariavel = '';
 let tempo = 0;
+let LastId = 0;
+const textEncoder = new TextEncoder();
+const textDecoder = new TextDecoder();
+let inicio = 0;
 
 onmessage = async function (array) {
     //Separando o buffer e o cabeçalho
-    let bufferCompartilhado = array.data.buffer;
-    let bufferView = new Int32Array(bufferCompartilhado);
+    let bufferView = array.data.buffer;
     chaveVariavel = array.data.key.apiKey;
+    inicio = array.data.begin;
+    LastId = inicio;
     await fazRequisicao(url, bufferView);
 };
 
@@ -21,19 +26,35 @@ async function fazRequisicao(url, bufferView){
     //Colocando o restante das cidades no array, tempo sendo aumentado para não haver problemas de requisição
     //pelos testes não pudemos colocar intervalo menor de 1,5 segundos entre cada
     tempo = 1500;
-    for(let j = 0; j < 20; j = j + 10){
+    for(let j = LastId; j < LastId+20; j = j + 10){
         //ainda tenho que incrementar o tempo, para fazer mais requisições em cada worker
         tempo = tempo + 1500;
         let tempArray = await coletarDados( bufferView, j, 10, tempo, cabecalhoRequisicao);
         console.log('temp com retorno da coleta', tempArray)
-        for (let i = 0; i < 10; i++) {
+        console.log(inicio);
+        for (let i = 0; i < 10; i= i + 1) {
             // Armazene os dados no objeto bufferCompartilhado
-            bufferView = tempArray[i];
+            let jsonString = JSON.stringify(tempArray[i]);
+            let encodedText = textEncoder.encode(jsonString);
+            //console.log("enconded text: ", encodedText);
+            let k = 0;
+            for (k; k < encodedText.length; k= k + 1){
+                //console.log("enconded text[k]: ", encodedText[k]);
+                Atomics.store(bufferView, i*80+LastId+k, encodedText[k]);
+                //console.log('inicio:', inicio, 'parte', i*80+LastId+k);
+            }
+            while(k<80){
+                //console.log("enconded text[k]: 0");
+                Atomics.store(bufferView, i*80+LastId+k, 0);
+                //console.log('inicio:', inicio, 'parte', i*80+LastId+k);
+                k++;
+            }
         }
-        console.log('buffer depois da coleta', bufferView);
+        LastId+=800;
+        //console.log("Last id:", LastId);
     }
     // Retorne o objeto bufferCompartilhado
-    postMessage( bufferView);
+    //postMessage( bufferView);
 }
 
 async function realizaRequisicao(url, cabecalhoRequisicao) {
