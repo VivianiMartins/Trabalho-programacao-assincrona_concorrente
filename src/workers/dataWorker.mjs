@@ -29,10 +29,10 @@ async function fazRequisicao(url, bufferView){
     LastIdTemp = LastId+50;
 
     for(let j = LastId; j < LastIdTemp; j = j + 10){
-        //console.log('Contador j', j);
-        //console.log('last id no for', LastId);
-        //console.log('last id no for', LastIdTemp);
-        //console.log('tempo', tempo);
+        console.log('Contador j', j);
+        console.log('last id no for', LastId);
+        console.log('last id no for', LastIdTemp);
+        console.log('tempo', tempo);
 
         //ainda tenho que incrementar o tempo, para fazer mais requisições em cada worker
         tempo = tempo + 1500;
