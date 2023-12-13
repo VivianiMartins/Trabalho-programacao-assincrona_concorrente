@@ -32,7 +32,7 @@ async function inicializaBuffer(){ //Aqui você faz a separação dos trabalhos 
 
 
         }
-        workers[numeroWorkers-1].postMessage([buffer, tamanho*(numeroWorkers-1), tamanho, tamanho]);
+        workers[numeroWorkers-1].postMessage([bufferCompartilhado, tamanho*(numeroWorkers-1), tamanho, tamanho]);
     },500);
 }
 

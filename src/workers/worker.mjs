@@ -1,8 +1,6 @@
 self.onmessage = (array) => {
     //bufferCompartilhado, Math.floor((bufferCompartilhado.length*x)/numeroWorkers), Math.floor((bufferCompartilhado.length*(x+1))/numeroWorkers)
-    let decodedText = textDecoder.decode(dataRefactor);
-        decodedText = decodedText.replace(/\]\[/g, ",");
-        let decodedTextJson = JSON.parse(decodedText);
+    const textDecoder = new TextDecoder();
     let bufferCompartilhado = array.data[0];
     console.log("Buffer Compartilhado do worker.mjs: ", Array.from(bufferCompartilhado));
     let inicio = array.data[1];
@@ -12,7 +10,7 @@ self.onmessage = (array) => {
     let grupos = [];
     let tol = 1e-3;
     let houveModificacao = true;
-    let numeroWorkers = 5; //ISSO DAQUI É O K, SÓ Tô Com Preguiça de mudar
+    let numeroWorkers = 4; //ISSO DAQUI É O K, SÓ Tô Com Preguiça de mudar
     let workerAtribuido = -1;
 
     for(let i = 0; i < numeroWorkers; i++){
@@ -35,8 +33,23 @@ self.onmessage = (array) => {
 
         houveModificacao = false;
         for(let x = inicio; x < (fim); x+=1){
-            let load = Atomics.load(bufferCompartilhado, x); //tengo que resolver isso
-            
+            let load = new Uint8Array(50);
+            let y = 0
+            while (y<50){
+
+               Atomics.store(load, y, Atomics.load(bufferCompartilhado, x));
+                y++;
+                x++;
+            }
+            while(Atomics.load(load, load.length-1) == 0){ // While the last element is a 0,
+                load = load.slice(0, load.length-1);                 // Remove that last element
+            }
+            x--;
+            console.log(load);
+            let decodedText = textDecoder.decode(load);
+            decodedText = decodedText.replace(/\]\[/g, ",");
+            let decodedTextJson = JSON.parse(decodedText);
+            console.log(decodedTextJson);
             let latitude = load[2]; //arrayCity[i][2] tem que ter a latitude
             let longitude = load[3]; //arrayCity[i][3] tem que ter o longitude
             let populacao = load[4]; //arrayCity[i][4] tem que ter a populacao
