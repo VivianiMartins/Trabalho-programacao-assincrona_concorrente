@@ -8,27 +8,28 @@ var workers = [];
 let bufferCompartilhado = new SharedArrayBuffer(1024**2);
 //irei salvar os dados do bufferCompartilhado em um array para poder mandar para o html
 var arrayCity = new Uint8Array(bufferCompartilhado);
-let requisicoesQCadaWorkerfaz = 24000; //Multiplicando pelo numero de caracteres
+let inicio = 0;//cada worker vai ter 500 dados para coletar dos 1000
+const textDecoder = new TextDecoder();
+
 inicializaBuffer();
 
 async function inicializaBuffer(){
-    //Aqui você faz a separação dos trabalhos entre os workers
-
-
+    //Aqui você faz a separação dos trabalhos entre os workers para coletar os dados
     for(let i = 0; i < numeroWorkers; i++){
         workers[i] = new Worker('./dataWorker.mjs', { type: 'module'});
         let tempKey = eval('key'+i);
-        let inicio = requisicoesQCadaWorkerfaz*i
+        console.log(inicio);
         workers[i].postMessage({buffer: arrayCity, key: tempKey, begin: inicio});
+        inicio = inicio + 500;
     }
-
 
     setTimeout(async () => {
         //Pegando os dados para colocar na view
         const temp = Array.from(arrayCity);
+        //esses dados tem que ser decodificados para voltarem a ser strings
         console.log('Dados após o término dos workers:', temp);
         console.log('Shared Array Buffer após o término dos workers: ', arrayCity);
-    }, 25000);
+    }, 75000);
 }
 
 
