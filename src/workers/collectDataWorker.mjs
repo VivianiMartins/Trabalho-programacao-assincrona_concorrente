@@ -43,10 +43,10 @@ async function decodeAndParseArrayBuffer(arrayBuffer) {
 
     // Decodifica Uint8Array para string usando TextDecoder
     let decodedText = textDecoder.decode(uint8Array);
-    decodedText = decodedText.filter(value => value !== 0);
+    //decodedText = decodedText.filter(value => value !== 0);
     decodedText = decodedText.replace(/\]\[/g, ",");
     // Analisa a string JSON de volta para um objeto
-    const parsedData = JSON.parse(decodedText);
+    const parsedData = JSON.stringify(decodedText);
 
     // Exibe os dados no console
     console.log('Dados analisados:', parsedData);
