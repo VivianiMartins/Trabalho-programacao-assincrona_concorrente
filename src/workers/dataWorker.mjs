@@ -2,8 +2,8 @@ const url = 'https://wft-geo-db.p.rapidapi.com/v1/geo/cities?languageCode=pt_BR&
 let chaveVariavel = '';
 let tempo = 0;
 let LastId = 0;
+let LastIdTemp = 0;
 const textEncoder = new TextEncoder();
-const textDecoder = new TextDecoder();
 let inicio = 0;
 
 onmessage = async function (array) {
@@ -26,12 +26,20 @@ async function fazRequisicao(url, bufferView){
     //Colocando o restante das cidades no array, tempo sendo aumentado para não haver problemas de requisição
     //pelos testes não pudemos colocar intervalo menor de 1,5 segundos entre cada
     tempo = 1500;
-    for(let j = LastId; j < LastId+20; j = j + 10){
+    LastIdTemp = LastId+50;
+    console.log('last id temp antes do for', LastIdTemp);
+    console.log('last id antes do for', LastId);
+
+    for(let j = LastId; j < LastIdTemp; j = j + 10){
+        console.log('Contador j', j);
+        console.log('last id no for', LastId);
+        console.log('last id no for', LastIdTemp);
+
         //ainda tenho que incrementar o tempo, para fazer mais requisições em cada worker
         tempo = tempo + 1500;
         let tempArray = await coletarDados( bufferView, j, 10, tempo, cabecalhoRequisicao);
-        console.log('temp com retorno da coleta', tempArray)
-        console.log(inicio);
+
+        console.log('inicio', inicio);
         for (let i = 0; i < 10; i= i + 1) {
             // Armazene os dados no objeto bufferCompartilhado
             let jsonString = JSON.stringify(tempArray[i]);
@@ -50,11 +58,15 @@ async function fazRequisicao(url, bufferView){
                 k++;
             }
         }
-        LastId+=800;
-        //console.log("Last id:", LastId);
+        if (j===2000){
+            console.log('chegou ao fim???');
+            break;
+        }
+        LastId+=50;
+        console.log("Last id fora:", LastId);
     }
     // Retorne o objeto bufferCompartilhado
-    //postMessage( bufferView);
+    postMessage( bufferView);
 }
 
 async function realizaRequisicao(url, cabecalhoRequisicao) {
@@ -81,7 +93,7 @@ function coletarDados( bufferView, min, max, tempo, cabecalhoRequisicao){
                 tempArray.data[i]['population']
             ];
         }
-        console.log('temp array coleta dados', tempArray);
+        //console.log('temp array coleta dados', tempArray);
         //para esperar mais
         resolve(tempArray);
     });
