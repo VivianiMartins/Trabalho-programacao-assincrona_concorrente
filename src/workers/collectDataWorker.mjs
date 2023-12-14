@@ -22,12 +22,12 @@ async function inicializaBuffer() {
         workers[i].postMessage({buffer: arrayCity, key: tempKey, begin: inicio});
         inicio = inicio + 500;
     }
-
+    console.log('Espere 75 segundos para visualizar os dados');
     setTimeout(async () => {
         //Pegando os dados para colocar na view
         const temp = Array.from(arrayCity);
         //esses dados tem que ser decodificados para voltarem a ser strings
-        console.log('Dados após o término dos workers:', temp);
+        //console.log('Dados após o término dos workers:', temp);
 
         decodedTextCities = await decodeAndParseArrayBuffer(arrayCity);
         // Exibe os dados no console
@@ -35,7 +35,7 @@ async function inicializaBuffer() {
 
         //conferindo a quantidade de dados
         const numeroDeColchetes = (decodedTextCities.match(/\[/g) || []).length;
-        console.log(numeroDeColchetes);
+        //console.log(numeroDeColchetes);
 
         //enviando os dados para o index.js
         postMessage(decodedTextCities);
